@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">meet3practice</string>
+    <string name="app_name">Практика третьего урока</string>
+    <string name="start_service">Запустить сервис</string>
+    <string name="stop_service">Остановить сервис</string>
+    <string name="open_and_bind">Открыть и привязать</string>
+    <string name="started_unbinded">Сервис запущен принудительно, привязка отсутствует</string>
+    <string name="started_binded">Сервис запущен принудительно, есть привязка</string>
+    <string name="only_binded">Сервис работает только по привязке</string>
+    <string name="unbind_button">Отвязать сервис</string>
 </resources>
