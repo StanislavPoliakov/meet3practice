@@ -15,7 +15,7 @@ public class MyService extends Service {
     private final String LOG_TAG = "meet3_logs";
     private Thread serviceWorkThread;
     private String serviceResultMessage;
-    private boolean isServiceWorking = false;
+    private boolean isMustWork = false;
     public MyService() {
     }
 
@@ -28,12 +28,7 @@ public class MyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(LOG_TAG, "Service: Started by onStartCommand");
-        /* Запускаем работу только в том случае, если сервис не выполняет работу. Чтобы множественные
-          нажатия кнопки "1" в главной Activity не плодили потоки. */
-        if (!isServiceWorking) {
-            serviceWork();
-            isServiceWorking = true;
-        }
+        serviceWork();
         //Сервис не будет перезапущен, если будет убит системой
         return START_NOT_STICKY;
     }
@@ -44,36 +39,50 @@ public class MyService extends Service {
      * Есть проверка выполняет ли сервис работу (isServiceWorking).
      */
     private void serviceWork() {
-        serviceWorkThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //Calendar currentTime = Calendar.getInstance();
-                try {
-                    while (isServiceWorking) {
-                        Thread.sleep(2000);
-                        serviceResultMessage = String.valueOf(Calendar.getInstance().getTime());
-                        Log.d(LOG_TAG, "Service working... Result message: " + serviceResultMessage);
+        /* Запускаем работу только в том случае, если сервис не выполняет работу. Чтобы множественные
+          нажатия кнопки "1" в главной Activity не плодили потоки. */
+        if ((serviceWorkThread == null) || (!serviceWorkThread.isAlive())) {
+            isMustWork = true;
+            serviceWorkThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    //Calendar currentTime = Calendar.getInstance();
+                    try {
+                        while (isMustWork) {
+                            Thread.sleep(2000);
+                            serviceResultMessage = String.valueOf(Calendar.getInstance().getTime());
+                            Log.d(LOG_TAG, "Service working... Result message: " + serviceResultMessage);
+                        }
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
                     }
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
                 }
-            }
-        });
-        serviceWorkThread.start();
+            });
+            serviceWorkThread.start();
+        }
     }
 
 
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        Log.d(LOG_TAG, "Service: Binded successfully");
+        serviceWork();
+        return null;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        if (!serviceWorkThread.isAlive()) isMustWork = false;
+
+        Log.d(LOG_TAG, "Service: Undinded successfully");
+        return super.onUnbind(intent);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        isServiceWorking = false;
+        isMustWork = false;
         Log.i(LOG_TAG, "Service: Destroyed");
     }
 

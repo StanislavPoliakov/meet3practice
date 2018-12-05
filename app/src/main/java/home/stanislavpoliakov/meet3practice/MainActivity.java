@@ -9,6 +9,7 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private boolean isServiceStarted = false;
     final String LOG_TAG = "meet3_logs";
+    private Button firstButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +23,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Метод инициализации кнопок Main Activity и добавления к ним обработчика
      */
     private void initButtons() {
-        Button firstButton = findViewById(R.id.first_button);
+        firstButton = findViewById(R.id.first_button);
+        firstButton.setText("Запустить сервис");
         Button secondButton = findViewById(R.id.second_button);
         firstButton.setOnClickListener(this);
         secondButton.setOnClickListener(this);
@@ -37,12 +39,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //Запуск сервиса по onStartCommand
                     startService(MyService.newIntent(MainActivity.this));
                     isServiceStarted = true;
+                    firstButton.setText("Остановить сервис");
                 } else {
                     //Останавливаем сервис
                     stopService(MyService.newIntent(MainActivity.this));
                     Log.d(LOG_TAG, "Main Activity: Stopping Service...");
                     isServiceStarted = false;
+                    firstButton.setText("Запустить сервис");
                 }
+                break;
+            case R.id.second_button:
+                startActivity(SecondActivity.newIntent(MainActivity.this));
                 break;
         }
     }
